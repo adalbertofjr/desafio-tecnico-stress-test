@@ -29,5 +29,4 @@ func PrintReport(data Report) {
 		fmt.Printf("  Código (%d): %d Falha\n", code, count)
 	}
 	fmt.Println("=========================================")
-
 }
