@@ -1,7 +1,6 @@
 package stresstest
 
 import (
-	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -30,8 +29,7 @@ func Execute(url string, requests int, concurrency int) {
 	}
 	wg.Wait()
 	data.TimeDuration = time.Since(startTime)
-	report(data)
-
+	PrintReport(data)
 }
 
 func makeRequest(mu *sync.Mutex, wg *sync.WaitGroup, url string, data *Report) {
@@ -65,31 +63,4 @@ func incrementaStatusCount(mu *sync.Mutex, statusCode int, data *Report) {
 	} else {
 		data.FailureRequests[statusCode]++
 	}
-}
-
-type Report struct {
-	url             string
-	TotalRequests   int
-	RequestsExecs   int
-	SuccessRequests int
-	FailureRequests map[int]int
-	TimeDuration    time.Duration
-}
-
-func report(data Report) {
-	fmt.Println("=========================================")
-	fmt.Println("Relatório de Stress Test")
-	fmt.Println("=========================================")
-	fmt.Printf("URL Testada: %s\n", data.url)
-	fmt.Printf("Total de Requisições: %d\n", data.TotalRequests)
-	fmt.Printf("Requisições Executadas: %d\n", data.RequestsExecs)
-	fmt.Printf("Duração Total: %.2fs\n", data.TimeDuration.Seconds())
-	fmt.Println("=========================================")
-	fmt.Println("Detalhes das Respostas:")
-	fmt.Printf("  Código (200): %d Sucesso\n", data.SuccessRequests)
-	for code, count := range data.FailureRequests {
-		fmt.Printf("  Código (%d): %d Falha\n", code, count)
-	}
-	fmt.Println("=========================================")
-
 }
