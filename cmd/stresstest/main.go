@@ -1,10 +1,9 @@
 package main
 
 import (
+	"adalbertofjr/desafio-tecnico-stress-test/stresstest"
 	"flag"
 	"fmt"
-	"net/http"
-	"sync"
 )
 
 func main() {
@@ -12,57 +11,20 @@ func main() {
 	requests := flag.Int("requests", 0, "Number of requests to perform")
 	concurrency := flag.Int("concurrency", 0, "Number of multiple requests to make at a time")
 
-	if *url == "" || *requests <= 0 || *concurrency <= 0 {
-		fmt.Println("Usage: stresstest -url <URL> -requests <number> -concurrency <number>")
+	flag.Parse()
+
+	// Validação
+	if *url == "" {
+		fmt.Println("Erro: URL é obrigatória")
+		flag.Usage()
 		return
 	}
 
-	flag.Parse()
-
-	execute(*url, *requests, *concurrency)
-}
-
-func execute(url string, requests int, concurrency int) {
-	mu := sync.Mutex{}
-	wg := sync.WaitGroup{}
-	counter := 0
-	ch := make(chan struct{}, concurrency)
-
-	for range requests {
-		wg.Add(1)
-		ch <- struct{}{}
-		go func() {
-			defer func() { <-ch }()
-			makeRequest(&mu, &wg, url, &counter)
-		}()
+	if *requests <= 0 || *concurrency <= 0 {
+		fmt.Println("Erro: requests e concurrency devem ser maiores que zero")
+		flag.Usage()
+		return
 	}
-	wg.Wait()
-}
 
-func makeRequest(mu *sync.Mutex, wg *sync.WaitGroup, url string, counter *int) {
-	defer wg.Done()
-	client := http.Client{}
-
-	resp, err := client.Get(url)
-
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	// body, err := io.ReadAll(resp.Body)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	fmt.Printf("Request: %d\n", incrementCount(mu, counter))
-}
-
-func incrementCount(mu *sync.Mutex, count *int) int {
-	mu.Lock()
-	defer mu.Unlock()
-
-	*count++
-
-	return *count
+	stresstest.Execute(*url, *requests, *concurrency)
 }
