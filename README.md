@@ -27,8 +27,8 @@ Sistema CLI em Go para realizar testes de carga em serviços web. Permite simula
 
 ```bash
 # Clone o repositório
-git clone <seu-repositorio>
-cd 5.Stress-Test
+git clone https://github.com/adalbertofjr/desafio-tecnico-stress-test.git
+cd desafio-tecnico-stress-test
 
 # Execute diretamente
 go run ./cmd/stresstest/main.go --url=<URL> --requests=<N> --concurrency=<C>
